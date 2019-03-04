@@ -1,0 +1,30 @@
+{
+  "name": "erratic-reason",
+  "version": "1.0.0",
+  "description": "Create user databases for CCNQ4",
+  "main": "index.js",
+  "scripts": {
+    "build": "npm install --only=dev && coffee -c *.coffee.md",
+    "pretest": "npm run build && coffee -c test/*.coffee.md",
+    "test": "nyc mocha"
+  },
+  "author": "stephane@shimaore.net",
+  "license": "Unlicense",
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "coffeescript": "^2.3.2",
+    "mocha": "^6.0.2",
+    "nyc": "^13.3.0"
+  },
+  "dependencies": {
+    "ccnq4-config": "^1.0.0",
+    "nimble-direction": "^9.0.1",
+    "uuid": "^3.3.2",
+    "well-groomed-feast": "^17.0.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "gitlab.com/shimaore/erratic-reason"
+  },
+  "private": true
+}
