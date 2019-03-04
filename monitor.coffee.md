@@ -1,6 +1,6 @@
     {p_fun} = require 'coffeescript-helpers'
 
-    {debug,heal,hand} = (require 'tangible') 'erratic-reason:monitor'
+    {debug,heal,foot} = (require 'tangible') 'erratic-reason:monitor'
 
     request = require 'superagent'
     CouchDB = require 'most-couchdb'
@@ -147,6 +147,7 @@ Startup
         .changes
           include_docs: true
         .map ({doc}) -> doc
+        .multicast()
 
       main1 = ->
         while true
@@ -154,7 +155,7 @@ Startup
             .filter (doc) ->
               return false unless doc.type is 'number'
               doc.default_voicemail_settings? or doc.user_database?
-            .observe hand (doc) ->
+            .observe foot (doc) ->
               await on_change doc, doc
               return
           await heal '(main1) changes', s
@@ -166,7 +167,7 @@ Startup
             .filter (doc) ->
               return false unless doc.type is 'number_domain'
               doc.fifos?.some (fifo) -> fifo.default_voicemail_settings? or fifo.user_database?
-            .observe hand ({doc}) ->
+            .observe foot (doc) ->
               return unless doc.fifos?
               for fifo in doc.fifos when fifo.default_voicemail_settings? or fifo.user_database?
                 await on_change doc, fifo
