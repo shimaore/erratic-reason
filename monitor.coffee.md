@@ -17,7 +17,7 @@ The couchapp inserted in the user's database, contains the views used by the voi
 Individual user database changes
 --------------------------------
 
-    monitored = (nimble,doc,data) ->
+    monitored = (cfg,nimble,doc,data) ->
 
       {default_voicemail_settings,user_database} = data
 
@@ -51,7 +51,7 @@ At this point we expect to have a valid user database name.
         debug.csr 'Invalid db name', user_database
         return
 
-      target_db_uri = [nimble.userdb_base_uri,user_database].join '/'
+      target_db_uri = [cfg.userdb_base_uri,user_database].join '/'
 
 ### Create the database
 
@@ -141,7 +141,7 @@ Startup
       on_change = (doc,data) ->
         if typeof cfg.voicemail?.monitoring is 'number'
           await sleep cfg.voicemail?.monitoring
-        await monitored nimble, doc, data
+        await monitored cfg, nimble, doc, data
 
       changes = prov
         .changes
