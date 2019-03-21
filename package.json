@@ -1,6 +1,6 @@
 {
   "name": "erratic-reason",
-  "version": "1.0.0",
+  "version": "1.0.4",
   "description": "Create user databases for CCNQ4",
   "main": "index.js",
   "scripts": {
