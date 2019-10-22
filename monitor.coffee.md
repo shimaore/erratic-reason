@@ -59,7 +59,7 @@ Create / access the user database.
 
       target_db = new CouchDB target_db_uri, true
       debug 'Creating target database', target_db_uri
-      await heal target_db.create()
+      await heal target_db.create 1 # single copy
       await target_db.info()
 
 It's OK if the database already exists.
