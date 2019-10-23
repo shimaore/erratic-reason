@@ -4,6 +4,7 @@
     module.exports = main = ->
       cfg = await Config()
       run cfg
+      true
 
     if require.main is module
       debug = (require 'tangible') "erratic-reason:server"

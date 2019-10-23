@@ -159,7 +159,7 @@ Startup
           return
 
       debug 'Ready'
-
-      return
+      invariant.start()
+      invariant
 
     module.exports = run
