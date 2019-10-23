@@ -3,7 +3,7 @@
     {debug,heal,foot} = (require 'tangible') 'erratic-reason:monitor'
 
     request = require 'superagent'
-    CouchDB = require 'most-couchdb'
+    CouchDB = require 'denormalized-invariants/denormalized'
     uuid = require 'uuid/v4'
     sleep = (timeout) -> new Promise (resolve) -> setTimeout resolve, timeout
     Nimble = require 'nimble-direction'
@@ -129,6 +129,8 @@ Close.
 Startup
 -------
 
+    {invariant} = require 'denormalized-invariants'
+
     run = (cfg) ->
       if cfg.voicemail?.monitoring is false
         return
@@ -138,47 +140,26 @@ Startup
       debug 'Starting changes listener'
       prov = new CouchDB nimble.provisioning
 
-      on_change = (doc,data) ->
-        if typeof cfg.voicemail?.monitoring is 'number'
-          await sleep cfg.voicemail?.monitoring
-        await monitored cfg, nimble, doc, data
+      invariant 'A configured number should have a voicemail database', prov, (S) ->
+        S
+        .filter ({type}) -> type is 'number'
+        .filter ({default_voicemail_settings,user_database}) ->
+          default_voicemail_settings? or user_database?
+        .map (doc) ->
+          await monitored cfg, nimble, doc, doc
 
-      changes = prov
-        .changes
-          include_docs: true
-        .map ({doc}) -> doc
-        .multicast()
+      invariant 'A configured FIFO should have a voicemail database', prov, (S) ->
+        S
+        .filter ({type}) -> type is 'number_domain'
+        .filter ({fifos}) -> fifos?.some (fifo) -> fifo.default_voicemail_settings? or fifo.user_database?
+        .map (doc) ->
+          return unless doc.fifos?
+          for fifo in doc.fifos when fifo.default_voicemail_settings? or fifo.user_database?
+            await on_change doc, fifo
+          return
 
-      main1 = ->
-        while true
-          s = changes
-            .filter (doc) ->
-              return false unless doc.type is 'number'
-              doc.default_voicemail_settings? or doc.user_database?
-            .observe foot (doc) ->
-              await on_change doc, doc
-              return
-          await heal '(main1) changes', s
-        return
-
-      main2 = ->
-        while true
-          s = changes
-            .filter (doc) ->
-              return false unless doc.type is 'number_domain'
-              doc.fifos?.some (fifo) -> fifo.default_voicemail_settings? or fifo.user_database?
-            .observe foot (doc) ->
-              return unless doc.fifos?
-              for fifo in doc.fifos when fifo.default_voicemail_settings? or fifo.user_database?
-                await on_change doc, fifo
-              return
-          await heal '(main2) changes', s
-        return
-
-      do main1
-      do main2
       debug 'Ready'
-
-      return
+      invariant.start()
+      invariant
 
     module.exports = run
