@@ -115,6 +115,16 @@ If the voicemail-settings document does not exist, create one based on the defau
         await target_db
           .put vm_settings
 
+### Replicate from another source if requested
+
+      if cfg.replicate_from?
+        source_db_uri = [cfg.replicate_from,user_database].join '/'
+        await request
+          .post [cfg.userdb_base_uri,'_replicate'].join '/'
+          .send
+            source: source_db_uri
+            target: target_db_uri
+
 Close.
 
       target_db = null
