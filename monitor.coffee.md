@@ -89,13 +89,7 @@ Restrict number of available past revisions
 This is also done in `src/User`, but doing it here ensures the design document is available to outside applications (e.g. a web-based user panel).
 
       debug 'Insert user application'
-      app = await target_db
-        .get user_app._id
-        .catch -> {}
-      app[k] = v for own k,v of user_app
-      await target_db
-        .put app
-        .catch -> true
+      await target_db.merge user_app._id, user_app
 
 ### Install the voicemail settings
 
